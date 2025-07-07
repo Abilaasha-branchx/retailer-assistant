@@ -249,21 +249,14 @@ if action_items:
     </style>
     <div class="action-btn-row">
     """, unsafe_allow_html=True)
+    from super_agent import SuperAgent
     for i, action in enumerate(action_items):
-        button_id = f"custom_btn_{i}"
-        # Use a unique form for each button to allow POST event
-        st.markdown(f'''
-            <form action="" method="post">
-                <input type="hidden" name="action_item" value="{action}" />
-                <button class="custom-red-btn" type="submit" name="{button_id}">{action}</button>
-            </form>
-        ''', unsafe_allow_html=True)
+        if st.button(action, key=f"custom_btn_{i}"):
+            st.session_state.pending_action = action
+            st.session_state.pending_response = f"I will do the action: '{action}'."
+            st.session_state.user_input = ""
+            #st.rerun()
     st.markdown("</div>", unsafe_allow_html=True)
-    # Handle button click via query params
-    import streamlit as st
-    if "action_item" in st.query_params:
-        st.session_state.user_input = st.query_params["action_item"][0]
-        st.experimental_rerun()
 
 
 def render_section(title, content, icon="📌"):
@@ -281,8 +274,6 @@ def render_section(title, content, icon="📌"):
 # Now render your detailed sections as before…
 db_output = st.session_state.get("db_output")
 
-
-
 # Render detailed data dynamically (only if summary is a dict)
 if isinstance(db_output, dict):
     for section, content in db_output.items():
@@ -290,6 +281,30 @@ if isinstance(db_output, dict):
             readable_title = section.replace("_", " ").title()
             render_section(readable_title, content)
 
+if 'pending_action' in st.session_state and 'pending_response' in st.session_state:
+    st.markdown('<div class="chat-container">', unsafe_allow_html=True)
+    st.markdown(f'<div class="user-bubble">{st.session_state.pending_action}</div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="xenie-bubble"><span class="xenie-avatar">X</span> {st.session_state.pending_response}</div>', unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    # push into chat history
+    st.session_state.chat_history.append({"role": "user", "content": st.session_state.pending_action})
+    st.session_state.chat_history.append({"role": "assistant", "content": st.session_state.pending_response})
+    del st.session_state.pending_action
+    del st.session_state.pending_response
+
+# After summaries and action buttons, show the pending action/response if present
+# if hasattr(st.session_state, "pending_action") and hasattr(st.session_state, "pending_response"):
+#     st.markdown('<div class="chat-container">', unsafe_allow_html=True)
+#     st.markdown(f'<div class="user-bubble">{st.session_state.pending_action}</div>', unsafe_allow_html=True)
+#     st.markdown(f'<div class="xenie-bubble"><span class="xenie-avatar">X</span> {st.session_state.pending_response}</div>', unsafe_allow_html=True)
+#     st.markdown('</div>', unsafe_allow_html=True)
+#     # Append to chat_history and clear pending
+#     st.session_state.chat_history.append({"role": "user", "content": st.session_state.pending_action})
+#     st.session_state.chat_history.append({"role": "assistant", "content": st.session_state.pending_response})
+#     del st.session_state.pending_action
+#     del st.session_state.pending_response
+#     st.rerun()
 
 # User input box (text or from button)
 user_input = st.text_input("You:", value=st.session_state.get("user_input", ""), key="user_input", placeholder="Ask Xenie about your business...")
@@ -301,4 +316,4 @@ if user_input:
     st.session_state.chat_history.append({"role": "assistant", "content": summary})
     st.session_state.action_items = action_items if isinstance(action_items, list) else []
     st.session_state.user_input = ""
-    st.experimental_rerun()
+    st.rerun()
