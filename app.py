@@ -198,7 +198,7 @@ st.markdown("""
 <style>
 /* target all Streamlit column buttons */
 div[data-testid="stHorizontalBlock"] button[data-baseweb="button"] {
-    background-color: #819ffc !important;
+    background-color: #ff0000 !important; /* Red background */
     color: #222 !important;
     border-radius: 8px !important;
     border: 1px solid #ccc !important;

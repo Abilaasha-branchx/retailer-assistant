@@ -12,7 +12,7 @@ GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY')
 
 # Set up Cohere chat model
 llm_cohere = ChatCohere(cohere_api_key=COHERE_API_KEY, model="command-r")
-llm = ChatGoogleGenerativeAI(api_key=GOOGLE_API_KEY, model="gemini-1.5-flash")
+llm = ChatGoogleGenerativeAI(api_key=GOOGLE_API_KEY, model="gemini-2.0-flash-lite")
 
 # Set up conversation memory (buffer memory is now recommended for simple chat)
 memory = ConversationBufferMemory(memory_key="history", return_messages=True)
@@ -189,7 +189,7 @@ def get_action_items(text, user_message=None):
     {text}
     Task:
     Create 2-3 action buttons text based on the above actions.
-    eg: ['action1', 'action2', 'action3']"""
+    action_buttons = ['action1', 'action2', 'action3']"""
     
     if user_message:
         prompt += f"\nUser context: {user_message}\n"
