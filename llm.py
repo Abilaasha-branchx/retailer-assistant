@@ -103,6 +103,7 @@ def summarize_db_output(db_output, user_message=None):
         Professional, clear, and actionable. Avoid unnecessary adjectives. Highlight immediate actions like ordering low-stock products
 
         Give output as markdown
+        Note: Always use ₹ as the currency symbol
         """    
     if user_message:
         prompt += f"\nUser context: {user_message}\n"
@@ -110,8 +111,8 @@ def summarize_db_output(db_output, user_message=None):
     formatted_response = format_llm_summary(str(response.content))
     action_items = get_action_items(formatted_response, user_message)
     raw= str(response.content)
-    print("THis is the raw output")
-    print(raw)
+    #print("THis is the raw output")
+    #print(raw)
     action_items = get_action_items(raw, user_message)
     formatted_response = format_llm_summary(raw)
     return formatted_response, action_items

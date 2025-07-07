@@ -135,8 +135,8 @@ if 'chat_history' not in st.session_state:
         else:
             summary = "Sorry, I couldn't fetch the summary right now."
             action_items = []
-        st.markdown(f"<small style='color:#f00'>DEBUG: summary={summary}</small>", unsafe_allow_html=True)
-        st.markdown(f"<small style='color:#f00'>DEBUG: action_items={action_items} (type={type(action_items)})</small>", unsafe_allow_html=True)
+        #st.markdown(f"<small style='color:#f00'>DEBUG: summary={summary}</small>", unsafe_allow_html=True)
+        #st.markdown(f"<small style='color:#f00'>DEBUG: action_items={action_items} (type={type(action_items)})</small>", unsafe_allow_html=True)
         greeting = f"Hello {DEFAULT_USER}! Here is a summary of yesterday's business performance:\n\n"
         st.session_state.chat_history = [
             {"role": "assistant", "content": f"{greeting}{summary}"}
@@ -192,7 +192,7 @@ else:
     action_items = st.session_state.action_items
 
 # Debug: Show action_items in the UI
-st.markdown(f"<small style='color:gray'>DEBUG action_items: {st.session_state.action_items}</small>", unsafe_allow_html=True)
+#st.markdown(f"<small style='color:gray'>DEBUG action_items: {st.session_state.action_items}</small>", unsafe_allow_html=True)
 
 st.markdown("""
 <style>
@@ -223,13 +223,47 @@ if isinstance(action_items, str):
         action_items = []
 
 if action_items:
-    #st.markdown('<div class="action-btn-row">', unsafe_allow_html=True)
-    cols = st.columns(len(action_items))
+    st.markdown("""
+    <style>
+    .action-btn-row {
+        display: flex;
+        gap: 2rem;
+        margin-bottom: 1.5rem;
+        justify-content: flex-start;
+    }
+    .custom-red-btn {
+        background-color: #ff0000;
+        color: #fff;
+        border: 1px solid #b30000;
+        border-radius: 8px;
+        font-weight: 600;
+        padding: 0.5em 1.5em;
+        margin: 0.5em 0;
+        cursor: pointer;
+        font-size: 1rem;
+        transition: background 0.2s;
+    }
+    .custom-red-btn:hover {
+        background-color: #cc0000;
+    }
+    </style>
+    <div class="action-btn-row">
+    """, unsafe_allow_html=True)
     for i, action in enumerate(action_items):
-        if cols[i].button(str(action), key=f"action_btn_{i}"):
-            st.session_state.user_input = str(action)
-            st.experimental_rerun()
-    st.markdown('</div>', unsafe_allow_html=True)
+        button_id = f"custom_btn_{i}"
+        # Use a unique form for each button to allow POST event
+        st.markdown(f'''
+            <form action="" method="post">
+                <input type="hidden" name="action_item" value="{action}" />
+                <button class="custom-red-btn" type="submit" name="{button_id}">{action}</button>
+            </form>
+        ''', unsafe_allow_html=True)
+    st.markdown("</div>", unsafe_allow_html=True)
+    # Handle button click via query params
+    import streamlit as st
+    if "action_item" in st.query_params:
+        st.session_state.user_input = st.query_params["action_item"][0]
+        st.experimental_rerun()
 
 
 def render_section(title, content, icon="📌"):

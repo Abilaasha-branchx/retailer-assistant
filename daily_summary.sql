@@ -34,7 +34,7 @@ WITH
   top_customers AS (
     SELECT
       c."name"                                                          AS "customer_name",
-      SUM(t."transaction_amount")                                       AS "amount_spent"
+      ROUND(SUM(t."transaction_amount")::numeric, 2)                                       AS "amount_spent"
     FROM "transactions" t
     JOIN "customers" c    ON t."customer_id" = c."id"
     WHERE (t."date_time"::date) = CURRENT_DATE - 1
